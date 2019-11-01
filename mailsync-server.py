@@ -9,7 +9,7 @@ import os, psycopg2, paramiko
 
 # Общие параметры
 Log = '/var/log/mailbase_sync.log'
-local_mailboxes = 'mailsync_local_mailboxes'
+mailboxes_localonly = 'mailboxes_localonly'
 
 # Параметры соединения с сервером zimbra
 zimbra_host = 'zimbra.domain.ru'
@@ -48,7 +48,7 @@ def log_write(message):
 def run():
   # Чтение файла исключений
   try:
-    ignore_local_mailboxes = open(local_mailboxes).read()
+    ignore_local_mailboxes = open(mailboxes_localonly).read()
   except IOError as error:
     log_write(error)
 
@@ -96,4 +96,3 @@ def run():
 # Запуск программы
 if __name__ =='__main__':
   run()
-  
