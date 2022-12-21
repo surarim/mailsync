@@ -1,7 +1,7 @@
 ![Alt text](mailsync.png?raw=true "Title")
 # mailsync
 ### Система обновления почтовых ящиков на postfix шлюзе из внутреннего сервера на zimbra
-### Version 0.04 (early development)
+### Version 0.1 (development)
 <hr>
 Обновление осуществляется в сторону postfix шлюза, для поддержания актуального списка почтовых ящиков.
 <br>
