@@ -1,7 +1,7 @@
 #!/usr/local/bin/python3
 # -*- coding: utf-8 -*-
 #------------------------------------------------------------------------------------------------
-# Обновление почтовых ящиков в базе mail, таблице relay_recipient из zimbra
+# Обновление почтовых ящиков в базе mail, таблице relay_recipient_maps из zimbra
 #------------------------------------------------------------------------------------------------
 
 from datetime import datetime
@@ -75,7 +75,7 @@ def run():
   # Чтение текущих ящиков на posfix
   conn = psycopg2.connect("host='localhost' dbname="+get_config('MailDatabase')+" user="+get_config('MailUser')+" password="+get_config('MailPasswd'))
   cursor = conn.cursor()
-  cursor.execute("select * from relay_recipient;")
+  cursor.execute("select * from relay_recipient_maps;")
   mailboxes_local=''
   for row in cursor:
     mailboxes_local += row[0]+'\n'
@@ -88,7 +88,7 @@ def run():
   for line in mailboxes_local.splitlines():
     if mailboxes_zimbra.find(line) == -1 or line in mailboxes_localonly:
       try:
-        cursor.execute("delete from relay_recipient where mailbox like %s;",(line,))
+        cursor.execute("delete from relay_recipient_maps where mailbox like %s;",(line,))
       except psycopg2.Error as error:
         print(format(error))
         exit(1)
@@ -97,7 +97,7 @@ def run():
   for line in mailboxes_zimbra.splitlines():
     if mailboxes_local.find(line) == -1 and line not in mailboxes_localonly:
       try:
-        cursor.execute("insert into relay_recipient values (%s);",(line,))
+        cursor.execute("insert into relay_recipient_maps values (%s);",(line,))
       except psycopg2.Error as error:
         print(format(error))
         exit(1)
