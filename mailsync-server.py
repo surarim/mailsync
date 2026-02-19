@@ -1,7 +1,7 @@
 #!/usr/local/bin/python3
 # -*- coding: utf-8 -*-
 #------------------------------------------------------------------------------------------------
-# Обновление почтовых ящиков в базе mail, таблице relay_recipient_maps из zimbra
+# Обновление почтовых ящиков из zimbra в базу mail, таблица relay_recipient_maps
 #------------------------------------------------------------------------------------------------
 
 from datetime import datetime
@@ -69,7 +69,7 @@ def run():
   ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
   log_write('Sync mailboxes...')
   ssh.connect(hostname=get_config('ZimbraHost'), username=get_config('ZimbraUser'), password=get_config('ZimbraPasswd'))
-  stdin, stdout, stderr = ssh.exec_command('su - zimbra -c "zmprov -l gaa"')
+  stdin, stdout, stderr = ssh.exec_command('su - zimbra -c "zmprov -l gaa "'+get_config('ZimbraDomain'))
   mailboxes_zimbra = (stdout.read() + stderr.read()).decode()
   ssh.close()
   # Чтение текущих ящиков на posfix
