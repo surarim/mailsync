@@ -1,7 +1,7 @@
 ![Alt text](mailsync.png?raw=true "Title")
 # mailsync
 ### Система обновления почтовых ящиков на postfix шлюзе из внутреннего сервера на zimbra
-### Version 0.2
+### Version 0.3
 <hr>
 Обновление осуществляется в сторону postfix шлюза, для поддержания актуального списка почтовых ящиков.
 <br>
@@ -11,7 +11,7 @@
 <ul>
   <li>postfix: 3.10.5</li>
   <li>PostgreSQL: 18.2 </li>
-  <li>Python: 3.13.5</li>
-  <li>psycopg2: 2.8.4</li>
-  <li>paramiko: 2.6.0</li>
+  <li>Python: 3.14.3</li>
+  <li>psycopg2: 2.8.11</li>
+  <li>paramiko: 4.0.0</li>
  </ul>
