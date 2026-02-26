@@ -64,38 +64,36 @@ def log_write(message):
 #------------------------------------------------------------------------------------------------
 
 def run():
-  # Получение списка почтовых ящиков из zimbra
+  log_write('Sync mailboxes...')
   ssh = paramiko.SSHClient()
   ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-  log_write('Sync mailboxes...')
   ssh.connect(hostname=get_config('ZimbraHost'), username=get_config('ZimbraUser'), password=get_config('ZimbraPasswd'))
+  # Получение общего списка почтовых ящиков из zimbra
   stdin, stdout, stderr = ssh.exec_command('su - zimbra -c "zmprov -l gaa "'+get_config('ZimbraDomain'))
   mailboxes_zimbra = (stdout.read() + stderr.read()).decode()
+  # Получение списка локальных почтовых ящиков из рассылки zimbra
+  stdin, stdout, stderr = ssh.exec_command('su - zimbra -c "zmprov gdlm '+get_config('ZimbraLocalMailboxes')+' | tail -n +4 "')
+  mailboxes_zimbra_local = (stdout.read() + stderr.read()).decode()
   ssh.close()
   # Чтение текущих ящиков на posfix
   conn = psycopg2.connect("host='localhost' dbname="+get_config('MailDatabase')+" user="+get_config('MailUser')+" password="+get_config('MailPasswd'))
   cursor = conn.cursor()
   cursor.execute("select * from relay_recipient_maps;")
-  mailboxes_local=''
+  mailboxes_postfix=''
   for row in cursor:
-    mailboxes_local += row[0]+'\n'
-  # Чтение таблицы локальных исключений
-  cursor.execute("select * from mailboxes_localonly;")
-  mailboxes_localonly=''
-  for row in cursor:
-    mailboxes_localonly += row[0]+'\n'
-  # Удаление локальных ящиков, которые более не присутствуют на zimbra
-  for line in mailboxes_local.splitlines():
-    if mailboxes_zimbra.find(line) == -1 or line in mailboxes_localonly:
+    mailboxes_postfix += row[0]+'\n'
+  # Удаление почтовых ящиков, которые более не присутствуют на zimbra или являются локальными
+  for line in mailboxes_postfix.splitlines():
+    if mailboxes_zimbra.find(line) == -1 or line in mailboxes_zimbra_local:
       try:
         cursor.execute("delete from relay_recipient_maps where mailbox like %s;",(line,))
       except psycopg2.Error as error:
         print(format(error))
         exit(1)
       log_write('Deleted '+line)
-  # Добавление новых локальных ящиков, которые есть на zimbra
+  # Добавление новых почтовых ящиков, которые есть на zimbra и не являются локальными
   for line in mailboxes_zimbra.splitlines():
-    if mailboxes_local.find(line) == -1 and line not in mailboxes_localonly:
+    if mailboxes_postfix.find(line) == -1 and line not in mailboxes_zimbra_local:
       try:
         cursor.execute("insert into relay_recipient_maps values (%s);",(line,))
       except psycopg2.Error as error:
