@@ -64,7 +64,6 @@ def log_write(message):
 #------------------------------------------------------------------------------------------------
 
 def run():
-  log_write('Sync mailboxes...')
   ssh = paramiko.SSHClient()
   ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
   ssh.connect(hostname=get_config('ZimbraHost'), username=get_config('ZimbraUser'), password=get_config('ZimbraPasswd'))
